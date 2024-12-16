@@ -36,6 +36,8 @@
     </property>
     <addaction name="actionZoom_in"/>
     <addaction name="actionZoom_out"/>
+    <addaction name="actionRotate_left"/>
+    <addaction name="actionRotate_right"/>
    </widget>
    <addaction name="menuopen"/>
    <addaction name="menuView"/>
@@ -55,10 +57,12 @@
    <addaction name="actionSave"/>
    <addaction name="actionZoom_in"/>
    <addaction name="actionZoom_out"/>
+   <addaction name="actionRotate_left"/>
+   <addaction name="actionRotate_right"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
    </property>
    <property name="text">
@@ -67,7 +71,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/Save.png</normaloff>:/icons/Save.png</iconset>
    </property>
    <property name="text">
@@ -76,7 +80,7 @@
   </action>
   <action name="actionZoom_in">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/zoom-in.png</normaloff>:/icons/zoom-in.png</iconset>
    </property>
    <property name="text">
@@ -85,16 +89,32 @@
   </action>
   <action name="actionZoom_out">
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/icons/zoom_out.png</normaloff>:/icons/zoom_out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom out</string>
    </property>
   </action>
+  <action name="actionRotate_left">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/rotate_left.png</normaloff>:/iconsrotate_left.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate left</string>
+   </property>
+  </action>
+  <action name="actionRotate_right">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/rotate_right.png</normaloff>:/icons/rotate_right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate right</string>
+   </property>
+  </action>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("ImageViewConvert");
     setGeometry(300, 300, 800, 600);
-
+    updateActions(false);
     imageLabel = new QLabel();
     imageLabel->setAlignment(Qt::AlignCenter);//图片显示小于label时候居中显示
     imageLabel->resize(0, 0);
@@ -42,9 +42,11 @@ void MainWindow::on_actionOpen_triggered()
             QMessageBox::warning(this, "Open Image", "Could not open the image file.");
             return;
         }
+        currentAngle = 0;
         scaleFactor = 1.0;
         imageLabel->setPixmap(QPixmap::fromImage(imageSave));
         imageLabel->adjustSize();
+        updateActions(true);
        // imageSave.load(fileName);
 
     }
@@ -68,6 +70,16 @@ void MainWindow::on_actionSave_triggered()
     }
 }
 
+void MainWindow::updateActions(bool actionState)
+{
+    this->ui->actionSave->setEnabled(actionState);
+    this->ui->actionZoom_in->setEnabled(actionState);
+    this->ui->actionZoom_out->setEnabled(actionState);
+    this->ui->actionRotate_left->setEnabled(actionState);
+    this->ui->actionRotate_right->setEnabled(actionState);
+
+}
+
 void MainWindow::scaleImage(double factor)
 {
     scaleFactor *= factor;
@@ -82,4 +94,23 @@ void MainWindow::on_actionZoom_in_triggered()
 void MainWindow::on_actionZoom_out_triggered()
 {
     scaleImage(0.75);
+}
+
+void MainWindow::rotateImage(int angle)
+{
+    currentAngle += angle;
+    QTransform transform;
+    transform.rotate(currentAngle);
+    QImage rotateImage = imageSave.transformed(transform,Qt::SmoothTransformation);
+    imageLabel->setPixmap(QPixmap::fromImage(rotateImage));
+}
+
+void MainWindow::on_actionRotate_left_triggered()
+{
+    rotateImage(-90);
+}
+
+void MainWindow::on_actionRotate_right_triggered()
+{
+    rotateImage(90);
 }
