@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QScrollArea>
+#include <QScrollBar>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,6 +19,8 @@ public:
     ~MainWindow();
 
 private slots:
+    bool eventFilter(QObject* obj, QEvent* event);
+
     void on_actionOpen_triggered();
 
     void on_actionSave_triggered();
@@ -40,5 +44,6 @@ private:
     void scaleImage(double factor);
     void updateActions(bool actionState);
     void rotateImage(int angle);
+    void adjustScrollBar(QScrollBar *scrollBar, double factor);
 };
 #endif // MAINWINDOW_H

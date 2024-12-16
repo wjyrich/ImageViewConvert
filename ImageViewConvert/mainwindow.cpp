@@ -3,6 +3,8 @@
 
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QWheelEvent>
+#include <QDebug>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -18,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);//允许其根据内容自适应大小
     imageLabel->setScaledContents(true);
+    imageLabel->installEventFilter(this);
     setCentralWidget(imageLabel);//设置为主窗口的中央小部件
 
     //在图片放大之后，当看不到其他地方时，采用scrollarea可以移动得到其他位置
@@ -25,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
+
 }
 
 MainWindow::~MainWindow()
@@ -32,12 +36,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == imageLabel) {
+        if (event->type() == QEvent::Wheel) {
+            QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
+            if (wheelEvent->angleDelta().y() > 0) {
+                scaleImage(1.25);
+            } else {
+                scaleImage(0.8);
+            }
+            return true;
+        }
+    }
+    return QMainWindow::eventFilter(obj, event);
+}
 
 void MainWindow::on_actionOpen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open Image File", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif *.svg)");
     if (!fileName.isEmpty()) {
-       imageSave = QImage(fileName);
+        imageSave = QImage(fileName);
         if (imageSave.isNull()) {
             QMessageBox::warning(this, "Open Image", "Could not open the image file.");
             return;
@@ -47,8 +66,6 @@ void MainWindow::on_actionOpen_triggered()
         imageLabel->setPixmap(QPixmap::fromImage(imageSave));
         imageLabel->adjustSize();
         updateActions(true);
-       // imageSave.load(fileName);
-
     }
 }
 
@@ -84,6 +101,9 @@ void MainWindow::scaleImage(double factor)
 {
     scaleFactor *= factor;
     imageLabel->resize(scaleFactor * imageLabel->pixmap()->size());
+    adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
+    adjustScrollBar(scrollArea->verticalScrollBar(), factor);
+
 }
 
 void MainWindow::on_actionZoom_in_triggered()
@@ -103,6 +123,12 @@ void MainWindow::rotateImage(int angle)
     transform.rotate(currentAngle);
     QImage rotateImage = imageSave.transformed(transform,Qt::SmoothTransformation);
     imageLabel->setPixmap(QPixmap::fromImage(rotateImage));
+}
+
+void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
+{
+    int newValue = factor * scrollBar->value() + (factor - 1) * scrollBar->pageStep() / 2;
+    scrollBar->setValue(newValue);
 }
 
 void MainWindow::on_actionRotate_left_triggered()
