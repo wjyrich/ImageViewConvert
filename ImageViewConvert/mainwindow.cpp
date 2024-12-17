@@ -5,9 +5,13 @@
 #include <QFileDialog>
 #include <QWheelEvent>
 #include <QDebug>
+#include <QMovie>
+#include <QVBoxLayout>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , svgviewer(new SvgViewer)
 {
     ui->setupUi(this);
     setWindowTitle("ImageViewConvert");
@@ -21,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);//允许其根据内容自适应大小
     imageLabel->setScaledContents(true);
     imageLabel->installEventFilter(this);
+
     setCentralWidget(imageLabel);//设置为主窗口的中央小部件
 
     //在图片放大之后，当看不到其他地方时，采用scrollarea可以移动得到其他位置
@@ -39,7 +44,7 @@ MainWindow::~MainWindow()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel) {
-        if (event->type() == QEvent::Wheel) {
+        if (event->type() == QEvent::Wheel && imageType == imagePNGJPG) {
             QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
             if (wheelEvent->angleDelta().y() > 0) {
                 scaleImage(1.25);
@@ -54,18 +59,39 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open Image File", "", "Images (*.png *.jpg *.jpeg *.bmp *.gif *.svg)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Open Image File", "",
+                                                    "Images (*.png *.jpg *.jpeg *.bmp *.gif *.svg)");
     if (!fileName.isEmpty()) {
-        imageSave = QImage(fileName);
-        if (imageSave.isNull()) {
-            QMessageBox::warning(this, "Open Image", "Could not open the image file.");
-            return;
+        QFileInfo fileInfo(fileName);
+        QString fileExtension = fileInfo.suffix().toLower();
+        if (fileExtension == "gif") {
+            imageType = imageGif;
+            QMovie *movie = new QMovie(fileName);
+            imageLabel->setMovie(movie);
+            movie->start();
+            updateActions(false);
         }
-        currentAngle = 0;
-        scaleFactor = 1.0;
-        imageLabel->setPixmap(QPixmap::fromImage(imageSave));
+        else if(fileExtension == "svg"){
+            imageLabel->clear();
+            if (svgviewer->openFile(fileName)) {
+                setCentralWidget(svgviewer);
+                updateActions(false);
+            } else {
+                QMessageBox::warning(this, "Open SVG", "Could not open the SVG file.");
+            }
+        }
+        else{
+            imageType = imagePNGJPG;
+            imageSave = QImage(fileName);
+            if (imageSave.isNull()) {
+                QMessageBox::warning(this, "Open Image", "Could not open the image file.");
+            }
+            imageLabel->setPixmap(QPixmap::fromImage(imageSave));
+            currentAngle = 0;
+            scaleFactor = 1.0;
+            updateActions(true);
+        }
         imageLabel->adjustSize();
-        updateActions(true);
     }
 }
 

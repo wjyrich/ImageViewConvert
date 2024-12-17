@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "svgviewer.h"
+
 #include <QMainWindow>
 #include <QLabel>
 #include <QScrollArea>
@@ -9,7 +11,11 @@
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
-
+enum ImageType{
+    imageGif,
+    imageSVG,
+    imagePNGJPG
+};
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -40,6 +46,9 @@ private:
     double scaleFactor;//图片的缩小放大因子
     QScrollArea *scrollArea;//放大图片后采用scrollarea可以移动得到其他位置
     int currentAngle;
+    ImageType imageType;
+
+    SvgViewer *svgviewer;
 
     void scaleImage(double factor);
     void updateActions(bool actionState);
