@@ -83,20 +83,15 @@ void MainWindow::on_actionOpen_triggered()
         }
         else{
             if(imageType == imageSVG){
-                qDebug()<<"in clear";
                 svgviewer->scene()->clear();
                 svgviewer->close();
             }
-            qDebug()<<"in png jpg";
             imageType = imagePNGJPG;
             imageSave = QImage(fileName);
             if (imageSave.isNull()) {
                 QMessageBox::warning(this, "Open Image", "Could not open the image file.");
             }
-            qDebug()<<"front png jpg";
             imageLabel->setPixmap(QPixmap::fromImage(imageSave));
-            qDebug()<<"set png jpg";
-
             currentAngle = 0;
             scaleFactor = 1.0;
             imageLabel->adjustSize();
