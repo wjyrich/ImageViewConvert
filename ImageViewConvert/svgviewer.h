@@ -12,6 +12,9 @@ class SvgViewer : public QGraphicsView
 public:
     explicit SvgViewer(QWidget *parent = nullptr);
     bool openFile(const QString &fileName);
+    void zoomIn(qreal factor);
+    void zoomOut(qreal factor);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 

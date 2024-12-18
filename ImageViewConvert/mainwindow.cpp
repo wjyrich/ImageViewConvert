@@ -69,29 +69,39 @@ void MainWindow::on_actionOpen_triggered()
             QMovie *movie = new QMovie(fileName);
             imageLabel->setMovie(movie);
             movie->start();
+            imageLabel->adjustSize();
             updateActions(false);
         }
         else if(fileExtension == "svg"){
-            imageLabel->clear();
+            imageType = imageSVG;
             if (svgviewer->openFile(fileName)) {
                 setCentralWidget(svgviewer);
-                updateActions(false);
+                updateActions(true);
             } else {
                 QMessageBox::warning(this, "Open SVG", "Could not open the SVG file.");
             }
         }
         else{
+            if(imageType == imageSVG){
+                qDebug()<<"in clear";
+                svgviewer->scene()->clear();
+                svgviewer->close();
+            }
+            qDebug()<<"in png jpg";
             imageType = imagePNGJPG;
             imageSave = QImage(fileName);
             if (imageSave.isNull()) {
                 QMessageBox::warning(this, "Open Image", "Could not open the image file.");
             }
+            qDebug()<<"front png jpg";
             imageLabel->setPixmap(QPixmap::fromImage(imageSave));
+            qDebug()<<"set png jpg";
+
             currentAngle = 0;
             scaleFactor = 1.0;
+            imageLabel->adjustSize();
             updateActions(true);
         }
-        imageLabel->adjustSize();
     }
 }
 
@@ -134,12 +144,22 @@ void MainWindow::scaleImage(double factor)
 
 void MainWindow::on_actionZoom_in_triggered()
 {
-    scaleImage(1.25);
+    if(imageType == imagePNGJPG){
+        scaleImage(1.25);
+    }else if(imageType == imageSVG){
+        svgviewer->zoomIn(2);
+    }
 }
 
 void MainWindow::on_actionZoom_out_triggered()
 {
-    scaleImage(0.75);
+    if(imageType == imagePNGJPG){
+        qDebug()<<"imageType1:"<<imageType;
+        scaleImage(0.75);
+    }else if(imageType == imageSVG){
+        qDebug()<<"imageType2:"<<imageType;
+        svgviewer->zoomIn(0.5);
+    }
 }
 
 void MainWindow::rotateImage(int angle)

@@ -15,6 +15,7 @@ bool SvgViewer::openFile(const QString &fileName)
     QScopedPointer<QGraphicsSvgItem> svgItem(new QGraphicsSvgItem(fileName));
     if(!svgItem->renderer()->isValid())
         return false;
+    qDebug()<<"in openfile";
 
     s->clear();
     resetTransform();
@@ -28,13 +29,29 @@ bool SvgViewer::openFile(const QString &fileName)
 
 void SvgViewer::paintEvent(QPaintEvent *event)
 {
-    if (m_image.size() != viewport()->size()) {
-        m_image = QImage(viewport()->size(), QImage::Format_ARGB32_Premultiplied);
-    }
-    QPainter imagePainter(&m_image);
-    QGraphicsView::render(&imagePainter);
-    imagePainter.end();
-    QPainter p(viewport());
-    p.drawImage(0, 0, m_image);
+//    if (m_image.size() != viewport()->size()) {
+//        m_image = QImage(viewport()->size(), QImage::Format_ARGB32_Premultiplied);
+//    }
+//    QPainter imagePainter(&m_image);
+//    QGraphicsView::render(&imagePainter);
+//    imagePainter.end();
+//    QPainter p(viewport());
+//    p.drawImage(0, 0, m_image);
     QGraphicsView::paintEvent(event); //让SVG能够动起来
+}
+
+void SvgViewer::zoomIn(qreal factor)
+{
+    const qreal currentZoom = transform().m11();
+    if((factor < 1 && currentZoom < 0.1)||(factor > 1 && currentZoom > 10))
+        return;
+    scale(factor,factor);
+}
+
+void SvgViewer::zoomOut(qreal factor)
+{
+    const qreal currentZoom = transform().m11();
+    if((factor < 1 && currentZoom < 0.1)||(factor > 1 && currentZoom > 10))
+        return;
+    scale(factor,factor);
 }
