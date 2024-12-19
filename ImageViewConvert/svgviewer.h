@@ -14,6 +14,7 @@ public:
     bool openFile(const QString &fileName);
     void zoomIn(qreal factor);
     void zoomOut(qreal factor);
+    void rotateView(int angle);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -22,6 +23,7 @@ protected:
 private:
     QGraphicsSvgItem *m_svgItem;
     QImage m_image;
+    int currentAngle;
 };
 
 #endif // SVGVIEWER_H

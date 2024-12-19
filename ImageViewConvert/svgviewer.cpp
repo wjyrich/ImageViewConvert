@@ -62,3 +62,11 @@ void SvgViewer::zoomOut(qreal factor)
         return;
     scale(factor,factor);
 }
+
+void SvgViewer::rotateView(int angle)
+{
+    currentAngle += angle; // 更新当前角度
+    QTransform transform;
+    transform.rotate(currentAngle); // 进行旋转
+    setTransform(transform);
+}

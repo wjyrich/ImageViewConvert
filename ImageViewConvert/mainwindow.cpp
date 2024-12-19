@@ -174,10 +174,18 @@ void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
 
 void MainWindow::on_actionRotate_left_triggered()
 {
-    rotateImage(-90);
+    if(imageType == imagePNGJPG){
+        rotateImage(-90);
+    }else if(imageType == imageSVG){
+        svgviewer->rotateView(-90);
+    }
 }
 
 void MainWindow::on_actionRotate_right_triggered()
 {
-    rotateImage(90);
+    if(imageType == imagePNGJPG){
+        rotateImage(90);
+    }else if(imageType == imageSVG){
+        svgviewer->rotateView(90);
+    }
 }
