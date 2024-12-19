@@ -44,14 +44,16 @@ MainWindow::~MainWindow()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel) {
-        if (event->type() == QEvent::Wheel && imageType == imagePNGJPG) {
-            QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-            if (wheelEvent->angleDelta().y() > 0) {
-                scaleImage(1.25);
-            } else {
-                scaleImage(0.8);
+        if (event->type() == QEvent::Wheel ) {
+            if(imageType == imagePNGJPG){
+                QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
+                if (wheelEvent->angleDelta().y() > 0) {
+                    scaleImage(1.25);
+                } else {
+                    scaleImage(0.8);
+                }
+                return true;
             }
-            return true;
         }
     }
     return QMainWindow::eventFilter(obj, event);
@@ -70,7 +72,7 @@ void MainWindow::on_actionOpen_triggered()
             imageLabel->setMovie(movie);
             movie->start();
             imageLabel->adjustSize();
-            updateActions(false);
+            updateActions(true);
         }
         else if(fileExtension == "svg"){
             imageType = imageSVG;
@@ -144,6 +146,17 @@ void MainWindow::on_actionZoom_in_triggered()
     }else if(imageType == imageSVG){
         svgviewer->zoomIn(2);
     }
+    else if(imageType == imageGif){
+        QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
+        QSize currentSize = imageLabel->size();
+
+        // 计算新的宽高，保持比例
+        float widthRatio = (currentSize.width() * 1.25) / originalSize.width();
+        float heightRatio = (currentSize.height() * 1.25) / originalSize.height();
+        float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
+
+        imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
+    }
 }
 
 void MainWindow::on_actionZoom_out_triggered()
@@ -154,6 +167,15 @@ void MainWindow::on_actionZoom_out_triggered()
     }else if(imageType == imageSVG){
         qDebug()<<"imageType2:"<<imageType;
         svgviewer->zoomIn(0.5);
+    }else if(imageType == imageGif){
+        QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
+        QSize currentSize = imageLabel->size();
+
+        // 计算新的宽高，保持比例
+        float widthRatio = (currentSize.width() * 0.75) / originalSize.width();
+        float heightRatio = (currentSize.height() * 0.75) / originalSize.height();
+        float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
+        imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
     }
 }
 
