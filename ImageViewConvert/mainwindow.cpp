@@ -54,6 +54,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 }
                 return true;
             }
+            else if (imageType == imageGif){
+                QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
+                if(wheelEvent->angleDelta().y()>0)
+                    scaleGif(1.25);
+                else
+                    scaleGif(0.75);
+            }
         }
     }
     return QMainWindow::eventFilter(obj, event);
@@ -68,7 +75,7 @@ void MainWindow::on_actionOpen_triggered()
         QString fileExtension = fileInfo.suffix().toLower();
         if (fileExtension == "gif") {
             imageType = imageGif;
-            QMovie *movie = new QMovie(fileName);
+            movie = new QMovie(fileName);
             imageLabel->setMovie(movie);
             movie->start();
             imageLabel->adjustSize();
@@ -139,6 +146,18 @@ void MainWindow::scaleImage(double factor)
 
 }
 
+void MainWindow::scaleGif(double factor)
+{
+    QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
+    QSize currentSize = imageLabel->size();
+
+    // 计算新的宽高，保持比例
+    float widthRatio = (currentSize.width() * factor) / originalSize.width();
+    float heightRatio = (currentSize.height() * factor) / originalSize.height();
+    float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
+
+    imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
+}
 void MainWindow::on_actionZoom_in_triggered()
 {
     if(imageType == imagePNGJPG){
@@ -147,35 +166,18 @@ void MainWindow::on_actionZoom_in_triggered()
         svgviewer->zoomIn(2);
     }
     else if(imageType == imageGif){
-        QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
-        QSize currentSize = imageLabel->size();
-
-        // 计算新的宽高，保持比例
-        float widthRatio = (currentSize.width() * 1.25) / originalSize.width();
-        float heightRatio = (currentSize.height() * 1.25) / originalSize.height();
-        float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
-
-        imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
+        scaleGif(1.25);
     }
 }
 
 void MainWindow::on_actionZoom_out_triggered()
 {
     if(imageType == imagePNGJPG){
-        qDebug()<<"imageType1:"<<imageType;
         scaleImage(0.75);
     }else if(imageType == imageSVG){
-        qDebug()<<"imageType2:"<<imageType;
         svgviewer->zoomIn(0.5);
     }else if(imageType == imageGif){
-        QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
-        QSize currentSize = imageLabel->size();
-
-        // 计算新的宽高，保持比例
-        float widthRatio = (currentSize.width() * 0.75) / originalSize.width();
-        float heightRatio = (currentSize.height() * 0.75) / originalSize.height();
-        float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
-        imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
+        scaleGif(0.75);
     }
 }
 
@@ -184,8 +186,10 @@ void MainWindow::rotateImage(int angle)
     currentAngle += angle;
     QTransform transform;
     transform.rotate(currentAngle);
-    QImage rotateImage = imageSave.transformed(transform,Qt::SmoothTransformation);
-    imageLabel->setPixmap(QPixmap::fromImage(rotateImage));
+    if(imageType == imagePNGJPG){
+        QImage rotateImage = imageSave.transformed(transform,Qt::SmoothTransformation);
+        imageLabel->setPixmap(QPixmap::fromImage(rotateImage));
+    }
 }
 
 void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
@@ -193,6 +197,7 @@ void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor)
     int newValue = factor * scrollBar->value() + (factor - 1) * scrollBar->pageStep() / 2;
     scrollBar->setValue(newValue);
 }
+
 
 void MainWindow::on_actionRotate_left_triggered()
 {
@@ -205,7 +210,7 @@ void MainWindow::on_actionRotate_left_triggered()
 
 void MainWindow::on_actionRotate_right_triggered()
 {
-    if(imageType == imagePNGJPG){
+    if(imageType == imagePNGJPG  ){
         rotateImage(90);
     }else if(imageType == imageSVG){
         svgviewer->rotateView(90);
