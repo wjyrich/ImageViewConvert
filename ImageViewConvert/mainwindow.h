@@ -32,6 +32,8 @@ private slots:
     void on_actionZoom_out_triggered();
     void on_actionRotate_left_triggered();
     void on_actionRotate_right_triggered();
+    void on_actionrestore_triggered();
+
 protected:
 
 private:

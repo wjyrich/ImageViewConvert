@@ -62,6 +62,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                     scaleGif(0.75);
             }
         }
+        if(event->type() == QEvent::MouseMove){
+            const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
+            const QPoint position = me->pos();
+            ui->statusBar->showMessage(QString("(x,y) coordinates: (%1,%2)").arg(position.x()).arg(position.y()));
+        }
     }
     return QMainWindow::eventFilter(obj, event);
 }
@@ -70,6 +75,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open Image File", "",
                                                     "Images (*.png *.jpg *.jpeg *.bmp *.gif *.svg)");
+
     if (!fileName.isEmpty()) {
         QFileInfo fileInfo(fileName);
         QString fileExtension = fileInfo.suffix().toLower();
@@ -101,11 +107,11 @@ void MainWindow::on_actionOpen_triggered()
                 QMessageBox::warning(this, "Open Image", "Could not open the image file.");
             }
             imageLabel->setPixmap(QPixmap::fromImage(imageSave));
-            currentAngle = 0;
-            scaleFactor = 1.0;
             imageLabel->adjustSize();
             updateActions(true);
         }
+        currentAngle = 0;
+        scaleFactor = 1.0;
     }
 }
 
@@ -148,14 +154,8 @@ void MainWindow::scaleImage(double factor)
 
 void MainWindow::scaleGif(double factor)
 {
-    QSize originalSize = imageLabel->movie()->currentImage().size(); // 获取原始图像大小
-    QSize currentSize = imageLabel->size();
-
-    // 计算新的宽高，保持比例
-    float widthRatio = (currentSize.width() * factor) / originalSize.width();
-    float heightRatio = (currentSize.height() * factor) / originalSize.height();
-    float scaleFactor = std::min(widthRatio, heightRatio); // 选择较小的比例以保持原始比例
-
+    scaleFactor *= factor;
+    QSize originalSize = imageLabel->movie()->currentPixmap().size(); // 获取原始图像大小
     imageLabel->resize(originalSize.width() * scaleFactor, originalSize.height() * scaleFactor);
 }
 void MainWindow::on_actionZoom_in_triggered()
@@ -215,4 +215,29 @@ void MainWindow::on_actionRotate_right_triggered()
     }else if(imageType == imageSVG){
         svgviewer->rotateView(90);
     }
+}
+
+void MainWindow::on_actionrestore_triggered()
+{
+    QSize windowSize = scrollArea->size();
+    QSize labelSize;
+    if(imageType == imagePNGJPG)
+        labelSize = imageLabel->pixmap()->size();
+    else
+        labelSize = imageLabel->movie()->currentPixmap().size();
+    double imageRatio = double(labelSize.height()) / labelSize.width();
+    double scaleTo;
+
+    if (windowSize.width() * imageRatio > windowSize.height()){
+        scaleTo = double(windowSize.height()) / labelSize.height();
+    }
+    else{
+        scaleTo = double(windowSize.width()) / labelSize.width();
+    }
+
+    double scaleBy = scaleTo / scaleFactor;
+    if(imageType == imagePNGJPG)
+        scaleImage(scaleBy);
+    else
+        scaleGif(scaleBy);
 }
