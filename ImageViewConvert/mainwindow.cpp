@@ -27,12 +27,16 @@ MainWindow::MainWindow(QWidget *parent)
     imageLabel->installEventFilter(this);
 
     setCentralWidget(imageLabel);//设置为主窗口的中央小部件
-
+    zoomMsg = new QLabel();
+    ui->statusBar->addPermanentWidget(zoomMsg);
     //在图片放大之后，当看不到其他地方时，采用scrollarea可以移动得到其他位置
     scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
+
+    updateZoomLabel();
+    connect(svgviewer, &SvgViewer::zoomChanged, this, &MainWindow::updateZoomLabel);
 
 }
 
@@ -140,7 +144,7 @@ void MainWindow::updateActions(bool actionState)
     this->ui->actionZoom_out->setEnabled(actionState);
     this->ui->actionRotate_left->setEnabled(actionState);
     this->ui->actionRotate_right->setEnabled(actionState);
-
+    this->ui->actionrestore->setEnabled(actionState);
 }
 
 void MainWindow::scaleImage(double factor)
@@ -240,4 +244,8 @@ void MainWindow::on_actionrestore_triggered()
         scaleImage(scaleBy);
     else
         scaleGif(scaleBy);
+}
+void MainWindow::updateZoomLabel(){
+    const int percent = qRound(svgviewer->transform().m11() * qreal(100));
+    zoomMsg->setText(QString::number(percent) + QLatin1Char('%'));
 }

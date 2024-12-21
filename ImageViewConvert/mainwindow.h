@@ -33,7 +33,7 @@ private slots:
     void on_actionRotate_left_triggered();
     void on_actionRotate_right_triggered();
     void on_actionrestore_triggered();
-
+    void updateZoomLabel();
 protected:
 
 private:
@@ -46,6 +46,7 @@ private:
     int currentAngle;
     ImageType imageType;
     SvgViewer *svgviewer;
+    QLabel *zoomMsg;
 
     void scaleImage(double factor);
     void updateActions(bool actionState);

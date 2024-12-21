@@ -20,6 +20,9 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
+signals:
+    void zoomChanged();
+
 private:
     QGraphicsSvgItem *m_svgItem;
     QImage m_image;

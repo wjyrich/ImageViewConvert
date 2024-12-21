@@ -45,6 +45,8 @@ void SvgViewer::wheelEvent(QWheelEvent *event)
     if((factor < 1 && currentZoom < 0.1)||(factor > 1 && currentZoom > 10))
         return;
     scale(factor,factor);
+    emit zoomChanged();
+
 }
 
 void SvgViewer::zoomIn(qreal factor)
@@ -53,6 +55,8 @@ void SvgViewer::zoomIn(qreal factor)
     if((factor < 1 && currentZoom < 0.1)||(factor > 1 && currentZoom > 10))
         return;
     scale(factor,factor);
+    emit zoomChanged();
+
 }
 
 void SvgViewer::zoomOut(qreal factor)
@@ -61,6 +65,8 @@ void SvgViewer::zoomOut(qreal factor)
     if((factor < 1 && currentZoom < 0.1)||(factor > 1 && currentZoom > 10))
         return;
     scale(factor,factor);
+    emit zoomChanged();
+
 }
 
 void SvgViewer::rotateView(int angle)
