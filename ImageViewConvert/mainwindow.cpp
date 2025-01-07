@@ -48,7 +48,9 @@ MainWindow::~MainWindow()
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel) {
-        if (event->type() == QEvent::Wheel ) {
+        switch(event->type()){
+        case QEvent::Wheel:
+        {
             if(imageType == imagePNGJPG){
                 QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
                 if (wheelEvent->angleDelta().y() > 0) {
@@ -65,11 +67,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 else
                     scaleGif(0.75);
             }
+            break;
         }
-        if(event->type() == QEvent::MouseMove){
+        case QEvent::MouseMove:
+        {
             const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
             const QPoint position = me->pos();
             ui->statusBar->showMessage(QString("(x,y) coordinates: (%1,%2)").arg(position.x()).arg(position.y()));
+        }
+            break;
         }
     }
     return QMainWindow::eventFilter(obj, event);
