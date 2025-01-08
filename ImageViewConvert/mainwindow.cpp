@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , svgviewer(new SvgViewer)
+    , isDragging(false)
 {
     ui->setupUi(this);
     setWindowTitle("ImageViewConvert");
@@ -49,33 +50,53 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == imageLabel) {
         switch(event->type()){
-        case QEvent::Wheel:
-        {
-            if(imageType == imagePNGJPG){
-                QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-                if (wheelEvent->angleDelta().y() > 0) {
-                    scaleImage(1.25);
-                } else {
-                    scaleImage(0.8);
+            case QEvent::Wheel:{
+                if(imageType == imagePNGJPG){
+                    QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
+                    if (wheelEvent->angleDelta().y() > 0) {
+                        scaleImage(1.25);
+                    } else {
+                        scaleImage(0.8);
+                    }
+                    return true;
                 }
-                return true;
+                else if (imageType == imageGif){
+                    QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
+                    if(wheelEvent->angleDelta().y()>0)
+                        scaleGif(1.25);
+                    else
+                        scaleGif(0.75);
+                }
+                break;
             }
-            else if (imageType == imageGif){
-                QWheelEvent *wheelEvent = static_cast<QWheelEvent *>(event);
-                if(wheelEvent->angleDelta().y()>0)
-                    scaleGif(1.25);
-                else
-                    scaleGif(0.75);
+            case QEvent::MouseMove:{
+                const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
+                const QPoint position = me->pos();
+                ui->statusBar->showMessage(QString("(x,y) coordinates: (%1,%2)").arg(position.x()).arg(position.y()));
+                if(isDragging){
+                    QPoint delta = me->pos() - lastMousePosition;
+                    imageLabel->move(imageLabel->pos() + delta); // 移动 QLabel
+                    lastMousePosition = me->pos();
+                }
+                break;
             }
-            break;
-        }
-        case QEvent::MouseMove:
-        {
-            const QMouseEvent* const me = static_cast<const QMouseEvent*>(event);
-            const QPoint position = me->pos();
-            ui->statusBar->showMessage(QString("(x,y) coordinates: (%1,%2)").arg(position.x()).arg(position.y()));
-        }
-            break;
+            case QEvent::MouseButtonPress:{
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+                if(mouseEvent->button()==Qt::LeftButton){
+                    lastMousePosition  = mouseEvent->pos();
+                    isDragging = true;
+                }
+                break;
+            }
+            case QEvent::MouseButtonRelease:{
+                QMouseEvent *mouseEvent  = static_cast<QMouseEvent *>(event);
+                if (mouseEvent->button() == Qt::LeftButton) {
+                    isDragging = false;
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
     return QMainWindow::eventFilter(obj, event);

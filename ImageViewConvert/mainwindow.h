@@ -47,6 +47,8 @@ private:
     ImageType imageType;
     SvgViewer *svgviewer;
     QLabel *zoomMsg;
+    QPoint lastMousePosition;
+    bool isDragging;
 
     void scaleImage(double factor);
     void updateActions(bool actionState);
